@@ -11,22 +11,6 @@ A production-ready demonstration of advanced Retrieval Augmented Generation tech
 - **Observability & Monitoring**: Integrated LangSmith tracing for production debugging and performance optimization
 - **Scalable Design**: Batch processing, vector indexing, and efficient embedding strategies for large document collections
 
-## 📊 Workflow Architecture
-
-This system implements a sophisticated RAG pipeline with multiple quality gates and adaptive routing:
-
-![CRAG Workflow](graph_workflow.png)
-
-### Workflow Components:
-
-1. **Adaptive Routing**: Intelligent query routing to vector store (philosophy) or web search (general topics)
-2. **Document Retrieval**: Fetch relevant documents from Pinecone vector database
-3. **CRAG - Document Grading**: Evaluate retrieved document relevance and trigger web search for low-quality results
-4. **Answer Generation**: Generate responses using high-quality context with custom RAG prompts
-5. **Self-RAG - Hallucination Check**: Validate that answers are grounded in source documents
-6. **Self-RAG - Answer Quality Check**: Ensure answers properly address the user's question
-7. **Adaptive Fallback**: Re-route to web search if quality checks fail
-
 ## Overview
 
 This project implements three state-of-the-art RAG techniques:
