@@ -17,9 +17,9 @@ def decide_web_search(state: GraphState) -> str:
     else:
         return GENERATE_ANSWER
 
-def enable_crag(state: GraphState) -> str:
-    print("--Enable CRAG---")
-    if state["crag"]:
+def route_after_retrieve(state: GraphState) -> str:
+    """Route after retrieval based on CRAG flag"""
+    if state.get("crag", True):
         return DOCUMENT_CHECK
     else:
         return GENERATE_ANSWER
@@ -29,6 +29,10 @@ def check_hallucination_and_answer(state: GraphState) -> str:
     question = state["question"]
     generation = state["generation"]
     documents = state["documents"]
+    
+    if not state.get("answer_found", True):
+        print("ℹ Answer not found in source material")
+        return "not_found"
     
     score = hallucination_checker.invoke(
         {"question": question, "generation": generation, "documents": documents}
@@ -52,6 +56,11 @@ def check_hallucination_and_answer(state: GraphState) -> str:
 
 def route_question(state: GraphState) -> str:
     print("--Router---")
+    
+    if not state.get("crag", True):
+        print("--CRAG disabled, routing directly to Vector Store---")
+        return RETRIEVE
+    
     question = state["question"]
     source: RouteQuery = question_router.invoke({"question": question})
     if source.datasource == "web_search":
@@ -77,7 +86,7 @@ workflow.set_conditional_entry_point(
 )
 workflow.add_conditional_edges(
   RETRIEVE,
-  enable_crag,
+  route_after_retrieve,
   {
       DOCUMENT_CHECK: DOCUMENT_CHECK,
       GENERATE_ANSWER: GENERATE_ANSWER,
@@ -101,10 +110,9 @@ workflow.add_conditional_edges(
       "relevant": END,
       "not_relevant": GENERATE_ANSWER,
       "not_grounded": WEB_SEARCH,
+      "not_found": END,
   }
 )
-
-workflow.add_edge(GENERATE_ANSWER, END)
 
 app = workflow.compile()
 

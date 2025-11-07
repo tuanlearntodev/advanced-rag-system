@@ -13,29 +13,21 @@ llm = ChatGoogleGenerativeAI(
     temperature=0
 )
 
-# Custom RAG prompt for high-quality answer generation
-system_template = """You are an expert assistant providing accurate, well-structured answers based on retrieved source documents.
+# Adaptive RAG prompt - adjusts length based on question complexity
+system_template = """Answer using ONLY the provided context. Do not add external knowledge.
 
-Your task is to answer the user's question using ONLY the information provided in the context documents below.
+Adaptive Length Rules:
+- Simple/factual questions: 30-50 words
+- Complex questions: 200-300 words
+- Step-by-step/list questions: numbered steps or bullet points
 
-Guidelines for Answer Generation:
-1. **Accuracy**: Base your answer strictly on the provided context. Do not add external knowledge or assumptions.
-2. **Completeness**: Provide a comprehensive answer that fully addresses the question using all relevant information from the documents.
-3. **Clarity**: Write in clear, concise language that is easy to understand.
-4. **Structure**: Organize your answer logically with proper paragraphs or bullet points when appropriate.
-5. **Honesty**: If the context does not contain enough information to answer the question fully, clearly state what information is missing.
-6. **Citations**: When referencing specific information, you may indicate which part of the context it comes from.
+Requirements:
+1. Base answer strictly on context below
+2. If context lacks info, state: "Information not available in source material."
+3. No headers, reasoning, or commentary—only the answer
 
-Context Documents:
-{context}
-
-Instructions:
-- If the context fully answers the question, provide a complete and detailed response.
-- If the context only partially answers the question, provide what you can and acknowledge any gaps.
-- If the context does not answer the question at all, clearly state: "Based on the provided documents, I cannot answer this question as the information is not available in the source material."
-- Do not make up or infer information that is not explicitly stated or reasonably implied in the context.
-
-Answer the question below based on the context above."""
+Context:
+{context}"""
 
 human_template = """Question: {question}
 
@@ -54,4 +46,8 @@ def generate_answer(state: GraphState) -> Dict[str, Any]:
     documents = state["documents"]
 
     generation = generation_chain.invoke({"question": question, "context": documents})
-    return {"documents": documents, "question": question, "generation": generation}
+    
+    # Check if answer indicates information not found
+    answer_found = "information not available" not in generation.lower()
+    
+    return {"documents": documents, "question": question, "generation": generation, "answer_found": answer_found}

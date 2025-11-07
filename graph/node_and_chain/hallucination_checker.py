@@ -15,35 +15,23 @@ class CheckHallucination(BaseModel):
 
 structured_llm_grader = llm.with_structured_output(CheckHallucination)
 
-system = """You are a strict grader evaluating whether an AI-generated answer is grounded in and supported by the provided source documents.
+system = """Evaluate if the generated answer is grounded in the source documents.
 
-Your task is to assess if the answer contains only information that can be directly found in or reasonably inferred from the given documents.
+Grade 'yes' if: All claims can be traced to the documents (direct quotes, paraphrasing, or reasonable inference).
+Grade 'no' if: Any part contains unsupported information, hallucinations, or contradicts the documents.
 
-Grading Criteria:
-- **yes**: The answer is fully grounded in the documents. All claims, facts, and statements can be traced back to the source documents.
-- **no**: The answer contains information not present in the documents, makes unsupported claims, or includes hallucinated content.
+Rules:
+1. Be strict - any unverifiable claim = 'no'
+2. Reasonable inference OK, speculation not OK
+3. Generic knowledge must be document-supported"""
 
-Important Guidelines:
-1. Be strict: If ANY part of the answer cannot be verified from the documents, grade it as 'no'
-2. Reasonable inference is acceptable, but speculation is not
-3. Direct quotes or paraphrasing from documents should be graded as 'yes'
-4. Generic knowledge not specific to the documents should be graded as 'no' unless it's clearly supported by the documents
-5. If the answer contradicts the documents, grade it as 'no'
+human = """Question: {question}
 
-Provide a binary score of 'yes' or 'no' to indicate whether the answer is grounded or supported in the provided documents."""
+Documents: {documents}
 
-human = """I need you to evaluate if the generated answer is grounded in the source documents.
+Answer: {generation}
 
-User's Question:
-{question}
-
-Source Documents (Context):
-{documents}
-
-Generated Answer to Evaluate:
-{generation}
-
-Task: Determine if the answer above is fully supported by the source documents. Grade as 'yes' if grounded, or 'no' if it contains unsupported information."""
+Is the answer fully supported by the documents? Grade 'yes' or 'no'."""
 
 hallucination_checker_prompt = ChatPromptTemplate.from_messages(
     [

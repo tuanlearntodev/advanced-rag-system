@@ -7,8 +7,8 @@ import os
 load_dotenv()
 
 file_path = [
-  "D:\\crag_demo\\105 Reading Selections.pdf",
-  "D:\\crag_demo\\Definitions for PHI 105.pdf"
+  "D:\\advanced-rag-system\\105 Reading Selections.pdf",
+  "D:\\advanced-rag-system\\Definitions for PHI 105.pdf"
 ]
 docs = []
 for path in file_path:
@@ -17,8 +17,8 @@ for path in file_path:
     
     
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=5000,
-    chunk_overlap=1000
+    chunk_size=2000,
+    chunk_overlap=500
 )
 
 docs_split = text_splitter.split_documents(docs)

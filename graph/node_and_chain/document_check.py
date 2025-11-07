@@ -18,26 +18,12 @@ class CheckDocuments(BaseModel):
 
 structured_llm_grader = llm.with_structured_output(CheckDocuments)
 
-system = """You are an expert document relevance evaluator for a Retrieval Augmented Generation (RAG) system.
+system = """Evaluate if the document can help answer the question.
 
-Your task is to assess whether a retrieved document contains information that can help answer the user's question.
+Grade 'yes': Document contains relevant answers, keywords, concepts, context, or semantically aligned info.
+Grade 'no': Document completely off-topic or unhelpful.
 
-Grading Criteria:
-- Grade as 'yes' if the document contains:
-  * Direct answers or facts relevant to the question
-  * Keywords, concepts, or entities mentioned in the question
-  * Related context that provides background or supporting information
-  * Semantic meaning aligned with the question's intent
-
-- Grade as 'no' if the document:
-  * Is completely off-topic or unrelated to the question
-  * Only contains tangentially related information that doesn't help answer the question
-  * Discusses different aspects of a keyword without addressing the question's intent
-
-Important: Be lenient rather than strict. If there's ANY useful information that could contribute to answering the question, grade it as 'yes'. 
-The goal is to retain potentially useful context while filtering out completely irrelevant documents.
-
-Provide a binary score: 'yes' (relevant) or 'no' (not relevant)."""
+Be lenient - any useful information = 'yes'."""
 document_check_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", system),

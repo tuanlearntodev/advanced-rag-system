@@ -15,38 +15,18 @@ llm = ChatGoogleGenerativeAI(
 )
 structured_llm_grader = llm.with_structured_output(CheckAnswer)
 
-system = """You are an expert evaluator assessing the quality and relevance of AI-generated answers.
+system = """Evaluate if the answer addresses the question.
 
-Your task is to determine whether the generated answer properly addresses and answers the user's question.
+Grade 'yes': Answer attempts to address the question (directly, partially, or with relevant info).
+Grade 'no': Answer completely ignores question, off-topic, or unhelpful.
 
-Grading Criteria:
-- Grade as 'yes' if the answer:
-  * Directly addresses the question asked
-  * Provides relevant information that helps answer the question
-  * Contains a clear response to what was asked
-  * May be partial but still attempts to answer the question
+Be lenient - partial/imperfect answers that are relevant = 'yes'."""
 
-- Grade as 'no' if the answer:
-  * Completely ignores the question
-  * Provides irrelevant or off-topic information
-  * States it cannot answer without providing any useful information
-  * Discusses something entirely different from what was asked
+human = """Question: {question}
 
-Important Guidelines:
-1. Focus on whether the answer ATTEMPTS to address the question, not whether it's perfect
-2. Partial answers that provide some relevant information should be graded as 'yes'
-3. Only grade as 'no' if the answer is completely unhelpful or off-topic
-4. The answer doesn't need to be comprehensive, just relevant
+Answer: {generation}
 
-Provide a binary score: 'yes' (addresses the question) or 'no' (does not address the question)."""
-
-human = """User's Question:
-{question}
-
-Generated Answer:
-{generation}
-
-Task: Evaluate whether the answer above addresses and attempts to answer the user's question. Grade as 'yes' if it does, or 'no' if it doesn't."""
+Does the answer address the question? Grade 'yes' or 'no'."""
 
 answer_check_prompt = ChatPromptTemplate.from_messages([
     ("system", system),

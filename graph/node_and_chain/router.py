@@ -18,41 +18,21 @@ llm = ChatGoogleGenerativeAI(
 
 structured_llm_router = llm.with_structured_output(RouteQuery)
 
-system = """You are an expert query router for a philosophy-focused Retrieval Augmented Generation (RAG) system.
+system = """Route questions to the best data source.
 
-Your task is to analyze the user's question and determine the best data source to answer it.
+'vector_store': Philosophy questions (concepts, theories, philosophers like Mill/Kant/Plato, ethics, metaphysics, epistemology, logic, political philosophy, moral reasoning, utilitarianism, deontology, virtue ethics, philosophy of mind/religion/science/language, philosophical texts)
 
-Routing Decision:
-- Route to 'vector_store' if the question is about PHILOSOPHY:
-  * Philosophical concepts, theories, or arguments
-  * Philosophers and their works (e.g., Mill, Kant, Plato, Aristotle, etc.)
-  * Ethics, metaphysics, epistemology, logic, political philosophy
-  * Philosophical terms and definitions
-  * Moral reasoning, utilitarianism, deontology, virtue ethics
-  * Philosophy of mind, religion, science, or language
-  * Any philosophical readings, texts, or academic philosophy content
-  * Examples: "What is Mill's definition of...", "Explain utilitarianism", "What does Kant say about..."
+'web_search': Non-philosophy questions (current events, news, sports, science, technology, math, history, geography, how-to, general knowledge)
 
-- Route to 'web_search' for NON-PHILOSOPHY questions:
-  * Current events, news, sports, entertainment
-  * Science, technology, math (unless philosophy of science)
-  * History, geography, culture (unless philosophical history)
-  * Personal advice, how-to questions, practical matters
-  * General knowledge not related to philosophy
-  * Examples: "What's the weather...", "How to cook...", "Latest news about..."
+Rules:
+1. Any philosophical topic/concept/philosopher → 'vector_store'
+2. Clearly non-philosophy → 'web_search'
+3. Vector store = philosophy course materials
+4. When unsure → 'vector_store'"""
 
-Important Guidelines:
-1. If the question mentions ANY philosophical topic, concept, or philosopher → 'vector_store'
-2. If the question is clearly not about philosophy → 'web_search'
-3. Your vector store contains philosophy course materials and readings
-4. When in doubt about philosophical relevance, choose 'vector_store'
+human = """Question: {question}
 
-Provide your routing decision as either 'vector_store' or 'web_search'."""
-
-human = """User's Question:
-{question}
-
-Task: Is this question about philosophy? If yes, route to 'vector_store'. If no (non-philosophy topic), route to 'web_search'."""
+Philosophy question? Route to 'vector_store'. Otherwise 'web_search'."""
 
 route_prompt = ChatPromptTemplate.from_messages([
     ("system", system),

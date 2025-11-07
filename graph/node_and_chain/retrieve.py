@@ -17,7 +17,7 @@ retriever = PineconeVectorStore.from_existing_index(
     index_name=index_name
 ).as_retriever(
     search_type="similarity",
-    search_kwargs={"k": 5}
+    search_kwargs={"k": 3}
 )
 
 def retrieve(state: GraphState) -> Dict[str, Any]:

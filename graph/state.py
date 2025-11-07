@@ -7,3 +7,4 @@ class GraphState(TypedDict):
     web_search: bool
     crag: bool
     documents: List[str]
+    answer_found: bool
