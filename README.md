@@ -230,9 +230,6 @@ This project demonstrates capabilities relevant to:
 - Tavily API key
 - LangSmith API key (optional, for tracing)
 
-## License
-
-MIT
 
 ## Acknowledgments
 
